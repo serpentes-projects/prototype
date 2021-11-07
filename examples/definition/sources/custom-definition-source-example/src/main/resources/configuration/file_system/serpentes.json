@@ -1,0 +1,8 @@
+{
+  "boolean": true,
+  "integer": 1,
+  "float": 1.1,
+  "string": "userProvided",
+  "collection": [],
+  "map": {}
+}

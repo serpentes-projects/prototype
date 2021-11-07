@@ -1,0 +1,72 @@
+plugins {
+    id 'java-library'
+    id 'maven-publish'
+    id "io.freefair.lombok" version "5.3.0"
+    id 'idea'
+}
+
+group 'io.serpentes'
+version '0.0.1-PROTOTYPE'
+
+repositories {
+    mavenCentral()
+    mavenLocal()
+}
+
+dependencies {
+    implementation group: 'org.projectlombok', name: 'lombok', version: '1.18.18'
+
+    api project(':modules:api')
+
+    testImplementation group: 'org.junit.jupiter', name: 'junit-jupiter', version: '5.6.2'
+
+    testImplementation project(':modules:testing')
+}
+
+java {
+    withJavadocJar()
+    withSourcesJar()
+}
+
+testClasses {
+    doLast {
+        // FIXME: For some reason this is necessary to ensures some of the integration-tests succeed.
+        copy {
+            from('src/main/resources') { include 'META-INF/beans.xml' }
+            into "$buildDir/classes/java/main/"
+        }
+    }
+}
+
+test {
+    useJUnitPlatform()
+    testLogging {
+        events "passed", "skipped", "failed"
+    }
+}
+
+javadoc {
+    if (JavaVersion.current().isJava9Compatible()) {
+        options.addBooleanOption('html5', true)
+    }
+}
+
+jar {
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+}
+
+publishing {
+    publications {
+        defaultTypeTree(MavenPublication) {
+            from components.java
+            versionMapping {
+                usage('java-api') {
+                    fromResolutionOf('runtimeClasspath')
+                }
+                usage('java-runtime') {
+                    fromResolutionResult()
+                }
+            }
+        }
+    }
+}

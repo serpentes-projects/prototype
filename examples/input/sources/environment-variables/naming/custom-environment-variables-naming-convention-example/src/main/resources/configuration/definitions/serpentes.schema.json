@@ -1,0 +1,39 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "type": "object",
+  "properties": {
+    "null": {
+      "type": "null"
+    },
+    "boolean": {
+      "type": "boolean"
+    },
+    "integer": {
+      "type": "integer"
+    },
+    "float": {
+      "type": "number"
+    },
+    "string": {
+      "type": "string"
+    },
+    "collection": {
+      "type": "array",
+      "items": {
+        "type": "null"
+      }
+    },
+    "map": {
+      "type": "object"
+    }
+  },
+  "required": [
+    "boolean",
+    "integer",
+    "null",
+    "float",
+    "string",
+    "collection",
+    "map"
+  ]
+}

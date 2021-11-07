@@ -1,0 +1,14 @@
+plugins {
+    id 'idea'
+    id 'java'
+}
+
+group 'io.serpentes'
+version '0.0.1-PROTOTYPE'
+
+idea {
+    module {
+        sourceDirs += file('src/main/markdown')
+        resourceDirs += file('src/main/resources')
+    }
+}

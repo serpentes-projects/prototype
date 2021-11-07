@@ -1,0 +1,51 @@
+plugins {
+    id 'java'
+    id 'idea'
+}
+
+group 'io.serpentes'
+version '0.0.1-PROTOTYPE'
+
+repositories {
+    mavenCentral()
+    mavenLocal()
+}
+
+dependencies {
+    implementation group: 'jakarta.enterprise', name: 'jakarta.enterprise.cdi-api', version: '3.0.0'
+    implementation group: 'io.serpentes', name: 'api', version: '0.0.1-PROTOTYPE'
+    implementation group: 'io.serpentes', name: 'environment-variables-input-source', version: '0.0.1-PROTOTYPE'
+
+    implementation group: 'org.junit.jupiter', name: 'junit-jupiter', version: '5.6.2'
+    implementation group: 'org.junit-pioneer', name: 'junit-pioneer', version: '1.4.2'
+
+    testImplementation group: 'org.jboss.weld.se', name: 'weld-se-core', version: '4.0.1.Final'
+
+    testImplementation group: 'io.serpentes', name: 'testing', version: '0.0.1-PROTOTYPE'
+    testImplementation group: 'io.serpentes', name: 'se-bootstrap', version: '0.0.1-PROTOTYPE'
+    testImplementation group: 'io.serpentes', name: 'jackson-configuration-factory', version: '0.0.1-PROTOTYPE'
+}
+
+testClasses {
+    doLast {
+        // FIXME: For some reason this is necessary to ensures some of the integration-tests succeed.
+        copy {
+            from('src/main/resources') { include 'META-INF/beans.xml' }
+            into "$buildDir/classes/java/main/"
+        }
+    }
+}
+
+test {
+    useJUnitPlatform()
+    testLogging {
+        events "passed", "skipped", "failed"
+    }
+
+    //NOTE: Gets rid of illegal reflective access warnings
+    jvmArgs += ['--add-opens', 'java.base/java.lang=ALL-UNNAMED']
+}
+
+jar {
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+}

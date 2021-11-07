@@ -1,0 +1,25 @@
+# Configuration Factories
+
+## Associated Features
+
+
+
+## Associated Concepts
+
+- [Input-store](./store.md)
+- [Type-trees](../definition/type-trees.md)
+- [Input-trees](../input/trees.md)
+
+## Associated Requirements
+_Functional:_
+- No need for hardcoded configuration keys.
+- No need for a configuration class provided by the library.
+- No need for typed getters/setters.
+
+_Non-functional:_
+- Ensure maintainability of configuration.
+- Ensure quality of configuration.
+- Ensure understandability of configuration.
+- Ensure user-control over the configuration that is produced.
+- Ensure extensibility.
+- Ensure a smooth user-experience.

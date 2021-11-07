@@ -1,0 +1,74 @@
+plugins {
+    id 'java-library'
+    id 'maven-publish'
+    id 'idea'
+}
+
+group 'io.serpentes'
+version '0.0.1-PROTOTYPE'
+
+repositories {
+    mavenCentral()
+    mavenLocal()
+}
+
+dependencies {
+    //TODO: Check public api-usage.
+    implementation group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: '2.12.1'
+
+    api project(':modules:api')
+    implementation project(':modules:input:trees:input-tree')
+
+    testImplementation group: 'org.junit.jupiter', name: 'junit-jupiter', version: '5.6.2'
+
+    testImplementation project(':modules:testing')
+    testImplementation project(':modules:input:sources:file-system:file-system-input-source')
+}
+
+java {
+    withJavadocJar()
+    withSourcesJar()
+}
+
+testClasses {
+    doLast {
+        // FIXME: For some reason this is necessary to ensures some of the integration-tests succeed.
+        copy {
+            from('src/main/resources') { include 'META-INF/beans.xml' }
+            into "$buildDir/classes/java/main/"
+        }
+    }
+}
+
+test {
+    useJUnitPlatform()
+    testLogging {
+        events "passed", "skipped", "failed"
+    }
+}
+
+javadoc {
+    if (JavaVersion.current().isJava9Compatible()) {
+        options.addBooleanOption('html5', true)
+    }
+}
+
+jar {
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+}
+
+publishing {
+    publications {
+        jsonInputParser(MavenPublication) {
+            from components.java
+            versionMapping {
+                usage('java-api') {
+                    fromResolutionOf('runtimeClasspath')
+                }
+                usage('java-runtime') {
+                    fromResolutionResult()
+                }
+            }
+        }
+    }
+}

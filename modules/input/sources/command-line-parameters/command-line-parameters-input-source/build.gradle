@@ -1,0 +1,80 @@
+plugins {
+    id 'java-library'
+    id 'idea'
+    id 'maven-publish'
+}
+
+group 'io.serpentes'
+version '0.0.1-PROTOTYPE'
+
+repositories {
+    mavenCentral()
+    mavenLocal()
+}
+
+dependencies {
+    //TODO: Check public api-usage.
+    implementation group:'jakarta.enterprise', name:'jakarta.enterprise.cdi-api', version: '3.0.0'
+    implementation group: 'org.jboss.weld.se', name: 'weld-se-core', version: '4.0.1.Final'
+
+    api project(':modules:api')
+    implementation project(':modules:input:trees:input-tree')
+    implementation project(':modules:input:stores:input-store')
+
+    testImplementation group: 'org.junit.jupiter', name: 'junit-jupiter', version: '5.6.2'
+    testImplementation group:'jakarta.enterprise', name:'jakarta.enterprise.cdi-api', version: '3.0.0'
+    testImplementation group: 'org.jboss.weld.se', name: 'weld-se-core', version: '4.0.1.Final'
+
+    testImplementation project(':modules:testing')
+    testImplementation project(':modules:definition:parsers:json-schema-parser')
+    testImplementation project(':modules:input:parsers:json-input-parser')
+    testImplementation project(':modules:input:stores:input-store')
+}
+
+java {
+    withJavadocJar()
+    withSourcesJar()
+}
+
+testClasses {
+    doLast {
+        // FIXME: For some reason this is necessary to ensures some of the integration-tests succeed.
+        copy {
+            from('src/main/resources') { include 'META-INF/beans.xml' }
+            into "$buildDir/classes/java/main/"
+        }
+    }
+}
+
+test {
+    useJUnitPlatform()
+    testLogging {
+        events "passed", "skipped", "failed"
+    }
+}
+
+javadoc {
+    if (JavaVersion.current().isJava9Compatible()) {
+        options.addBooleanOption('html5', true)
+    }
+}
+
+jar {
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+}
+
+publishing {
+    publications {
+        commandLineParametersInputSource(MavenPublication) {
+            from components.java
+            versionMapping {
+                usage('java-api') {
+                    fromResolutionOf('runtimeClasspath')
+                }
+                usage('java-runtime') {
+                    fromResolutionResult()
+                }
+            }
+        }
+    }
+}

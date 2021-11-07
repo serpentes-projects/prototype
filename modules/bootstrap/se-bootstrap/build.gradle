@@ -1,0 +1,98 @@
+plugins {
+    id 'java-library'
+    id 'idea'
+    id 'maven-publish'
+}
+
+group 'io.serpentes'
+version '0.0.1-PROTOTYPE'
+
+repositories {
+    mavenCentral()
+    mavenLocal()
+}
+
+dependencies {
+    //TODO: Check public api-usage.
+    api group: 'jakarta.enterprise', name: 'jakarta.enterprise.cdi-api', version: '3.0.0'
+
+    api project(':modules:api')
+    api project(':modules:definition:sources:file-system:file-system-definition-source-api')
+    api project(':modules:input:sources:file-system:file-system-input-source-api')
+    api project(':modules:input:stores:input-store')
+    api project(':modules:input:sources:environment-variables:environment-variables-input-source-api')
+    api project(':modules:input:sources:command-line-parameters:command-line-parameters-input-source')
+    //TODO: Ensure this api exposure is not necessary.
+
+    implementation group: 'org.jboss.weld.se', name: 'weld-se-core', version: '4.0.1.Final'
+    //TODO: Remove dependency on Weld, allow user to provide CDIContainer.
+
+    implementation project(':modules:definition:sources:file-system:file-system-definition-source')
+    implementation project(':modules:input:sources:file-system:file-system-input-source')
+    implementation project(':modules:definition:parsers:json-schema-parser')
+
+    implementation project(':modules:input:sources:environment-variables:environment-variables-input-source')
+    implementation project(':modules:input:sources:file-system:file-system-input-source')
+    implementation project(':modules:input:parsers:json-input-parser')
+
+    testImplementation group: 'org.junit.jupiter', name: 'junit-jupiter', version: '5.6.2'
+    testImplementation group: 'org.junit-pioneer', name: 'junit-pioneer', version: '1.4.2'
+    testImplementation group: 'jakarta.enterprise', name: 'jakarta.enterprise.cdi-api', version: '3.0.0'
+    testImplementation group: 'org.jboss.weld.se', name: 'weld-se-core', version: '4.0.1.Final'
+    testImplementation group: 'com.fasterxml.jackson.core', name: 'jackson-annotations', version: '2.12.1'
+    testImplementation group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: '2.12.1'
+
+    testImplementation project(':modules:testing')
+    testImplementation project(':modules:configuration:factories:jackson-configuration-factory')
+}
+
+testClasses {
+    doLast {
+        // FIXME: For some reason this is necessary to ensures some of the integration-tests succeed.
+        copy {
+            from('src/main/resources') { include 'META-INF/beans.xml' }
+            into "$buildDir/classes/java/main/"
+        }
+    }
+}
+
+java {
+    withJavadocJar()
+    withSourcesJar()
+}
+
+test {
+    useJUnitPlatform()
+    testLogging {
+        events "passed", "skipped", "failed"
+    }
+
+    //NOTE: Gets rid of illegal reflective access warnings
+    jvmArgs += ['--add-opens', 'java.base/java.lang=ALL-UNNAMED']
+}
+
+javadoc {
+    if (JavaVersion.current().isJava9Compatible()) {
+        options.addBooleanOption('html5', true)
+    }
+}
+
+jar {
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+}
+
+publishing {
+    publications {
+        bootSe(MavenPublication) {
+            from components.java
+            versionMapping {
+                usage('java-api') {
+                    fromResolutionOf('runtimeClasspath')
+                }
+                usage('java-runtime') {
+                    fromResolutionResult()
+                }
+            }
+        }
+    }
+}

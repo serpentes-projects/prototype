@@ -1,0 +1,8 @@
+null: null
+boolean: true
+integer: 1
+float: 1.1
+string: "custom-input-parser-example"
+collection: [ ]
+map: { }
+
